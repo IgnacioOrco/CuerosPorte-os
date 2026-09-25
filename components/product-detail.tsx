@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { MessageCircle, ChevronLeft, ChevronRight, Send, X, Check, Loader2, UploadCloud, File } from "lucide-react"
+import { MessageCircle, ChevronLeft, ChevronRight, Send, X, Check, Loader2, UploadCloud, File, Sparkles, Shield, Clock } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getProductVariantImages } from "@/components/product-card"
+import { matchProductToPillar, getPillarBySlug } from "@/lib/categories"
 import { toast } from "sonner"
 
 interface ProductDetailProps {
@@ -31,9 +32,9 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
     const [modalCompany, setModalCompany] = useState("")
     const [modalEmail, setModalEmail] = useState("")
     const [modalPhone, setModalPhone] = useState("")
-    const [modalQuantity, setModalQuantity] = useState("200")
+    const [modalQuantity, setModalQuantity] = useState("100")
     const [modalMessage, setModalMessage] = useState(
-        `Hola, me interesa solicitar una cotización por un desarrollo similar al modelo "${product.name}"${selectedVariant ? ` en color ${selectedVariant.color_name}` : ""}.`
+        `Hola, me interesa solicitar una cotización para un desarrollo corporativo inspirado en el objeto "${product.name}"${selectedVariant ? ` (Color: ${selectedVariant.color_name})` : ""}.`
     )
     const [modalFiles, setModalFiles] = useState<File[]>([])
     const [modalDragOver, setModalDragOver] = useState(false)
@@ -44,7 +45,7 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
     const images = getProductVariantImages(selectedVariant)
     const currentImages = images.length
         ? images
-        : ["/images/hero.png"] // Fallback
+        : ["/images/products/portafolio 3 fuelles.jpeg"]
 
     const handlePrev = () => {
         setActiveIdx((prev) => (prev === 0 ? currentImages.length - 1 : prev - 1))
@@ -55,14 +56,18 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
     }
 
     const whatsappMessage = encodeURIComponent(
-        `Hola Cueros Porteños. Me interesa realizar una consulta corporativa para un desarrollo a medida inspirado en el producto: ${product.name} (Color: ${selectedVariant?.color_name || 'N/A'}).`
+        `Hola Cueros Porteños. Me interesa realizar una consulta para un desarrollo a medida inspirado en: ${product.name} (Color: ${selectedVariant?.color_name || 'Estándar'}).`
     )
     const whatsappLink = `https://wa.me/541140240594?text=${whatsappMessage}`
+
+    // Pillar context
+    const pillarSlug = matchProductToPillar(product)
+    const pillar = getPillarBySlug(pillarSlug)
 
     // Modal Handlers
     const handleOpenModal = () => {
         setModalMessage(
-            `Hola, me interesa solicitar una cotización por un desarrollo similar al modelo "${product.name}"${selectedVariant ? ` en color ${selectedVariant.color_name}` : ""}.`
+            `Hola, me interesa solicitar una cotización para un desarrollo corporativo inspirado en el objeto "${product.name}"${selectedVariant ? ` (Color: ${selectedVariant.color_name})` : ""}.`
         )
         setIsModalOpen(true)
     }
@@ -80,10 +85,10 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
         }
 
         setModalSubmitting(true)
-        await new Promise(resolve => setTimeout(resolve, 1500))
+        await new Promise(resolve => setTimeout(resolve, 1400))
         setModalSubmitting(false)
         setModalSuccess(true)
-        toast.success(`¡Consulta enviada para el desarrollo ${product.name}!`)
+        toast.success(`¡Consulta enviada para el objeto ${product.name}!`)
 
         // Reset
         setModalName("")
@@ -133,53 +138,54 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
 
     return (
         <div className="relative">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-                {/* Gallery Section */}
-                <div className="space-y-4">
-                    <div className="relative aspect-[4/5] bg-[#F5EFE6] border border-[#DDC8A6]/40 rounded-2xl overflow-hidden group">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                
+                {/* Left: Generous Material-Focused Gallery */}
+                <div className="lg:col-span-6 space-y-4">
+                    <div className="relative aspect-[4/5] bg-[#F5EFE6] border border-[#DDC8A6]/40 rounded-2xl overflow-hidden group shadow-sm">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={activeIdx}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                transition={{ duration: 0.35, ease: "easeInOut" }}
                                 className="absolute inset-0 w-full h-full"
                             >
                                 <Image
                                     src={currentImages[activeIdx]}
-                                    alt={`Imagen de ${product.name}`}
+                                    alt={`Detalle y materialidad de ${product.name}`}
                                     fill
-                                    sizes="(max-width: 1024px) 100vw, 600px"
+                                    sizes="(max-width: 1024px) 100vw, 650px"
                                     className="object-cover"
                                     priority
                                 />
                             </motion.div>
                         </AnimatePresence>
 
-                        {/* Navigation Arrows */}
+                        {/* Navigation Controls */}
                         {currentImages.length > 1 && (
                             <>
                                 <button
                                     onClick={handlePrev}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm border flex items-center justify-center shadow-md hover:bg-background transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 z-10 cursor-pointer border-[#DDC8A6]/30 text-[#251D13]"
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#FBF8F3]/90 backdrop-blur-md border border-[#DDC8A6]/40 flex items-center justify-center shadow-md hover:bg-[#FBF8F3] transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 z-10 cursor-pointer text-[#251D13]"
                                     aria-label="Anterior imagen"
                                 >
-                                    <ChevronLeft className="w-5 h-5 text-foreground" />
+                                    <ChevronLeft className="w-5 h-5" />
                                 </button>
                                 <button
                                     onClick={handleNext}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm border flex items-center justify-center shadow-md hover:bg-background transition-all duration-300 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 z-10 cursor-pointer border-[#DDC8A6]/30 text-[#251D13]"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#FBF8F3]/90 backdrop-blur-md border border-[#DDC8A6]/40 flex items-center justify-center shadow-md hover:bg-[#FBF8F3] transition-all duration-300 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 z-10 cursor-pointer text-[#251D13]"
                                     aria-label="Siguiente imagen"
                                 >
-                                    <ChevronRight className="w-5 h-5 text-foreground" />
+                                    <ChevronRight className="w-5 h-5" />
                                 </button>
                             </>
                         )}
 
-                        {/* Image dots */}
+                        {/* Dots */}
                         {currentImages.length > 1 && (
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-background/80 backdrop-blur-sm px-2.5 py-1.5 rounded-full z-10 border border-[#DDC8A6]/30">
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-[#FBF8F3]/80 backdrop-blur-md px-3 py-1.5 rounded-full z-10 border border-[#DDC8A6]/40">
                                 {currentImages.map((_, idx) => (
                                     <button
                                         key={idx}
@@ -188,27 +194,27 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                             "w-2 h-2 rounded-full transition-all duration-300 cursor-pointer",
                                             activeIdx === idx 
                                                 ? "bg-[#251D13] w-4" 
-                                                : "bg-[#251D13]/40 hover:bg-[#251D13]/60"
+                                                : "bg-[#251D13]/30 hover:bg-[#251D13]/60"
                                         )}
-                                        aria-label={`Ir a imagen ${idx + 1}`}
+                                        aria-label={`Ir a detalle ${idx + 1}`}
                                     />
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {/* Thumbnails */}
+                    {/* Thumbnails row */}
                     {currentImages.length > 1 && (
-                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted">
+                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                             {currentImages.map((img, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setActiveIdx(idx)}
                                     className={cn(
-                                        "relative w-20 h-24 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border-2",
+                                        "relative w-20 h-24 flex-shrink-0 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border-2 bg-[#F5EFE6]",
                                         activeIdx === idx
-                                            ? "border-[#856a43] scale-[1.03] shadow-sm opacity-100"
-                                            : "border-[#DDC8A6]/60 opacity-60 hover:opacity-100 hover:scale-[1.02]"
+                                            ? "border-[#856a43] shadow-sm opacity-100 scale-[1.02]"
+                                            : "border-[#DDC8A6]/50 opacity-60 hover:opacity-100"
                                     )}
                                 >
                                     <Image
@@ -224,56 +230,106 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                     )}
                 </div>
 
-                {/* Info Section */}
-                <div className="flex flex-col justify-center space-y-8">
-                    <div>
-                        <Badge variant="outline" className="mb-4 text-xs font-bold uppercase tracking-wider rounded-md text-[#856a43] border-[#DDC8A6]/60 bg-[#F5EFE6]/50">
-                            {product.category}
-                        </Badge>
-                        <h1 className="text-4xl font-bold font-serif tracking-tight text-[#251D13]">{product.name}</h1>
-                        <p className="mt-4 text-base text-[#251D13]/70 leading-relaxed font-sans">
-                            {product.description}
+                {/* Right: Object Narrative, Philosophy & Inquiries */}
+                <div className="lg:col-span-6 flex flex-col justify-center space-y-6 font-sans">
+                    
+                    {/* Header Badges */}
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                            {pillar && (
+                                <Badge variant="outline" className="text-[10px] font-mono font-bold uppercase tracking-wider rounded-md text-[#856a43] border-[#DDC8A6]/80 bg-[#F5EFE6]/60 px-2.5 py-1">
+                                    {pillar.code} — {pillar.name}
+                                </Badge>
+                            )}
+                            <Badge variant="secondary" className="text-[10px] font-mono uppercase tracking-wider rounded-md text-[#251D13] bg-[#F5EFE6] border border-[#DDC8A6]/40 px-2.5 py-1">
+                                Diseñado para la vida cotidiana
+                            </Badge>
+                        </div>
+
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif tracking-tight text-[#251D13] leading-tight">
+                            {product.name}
+                        </h1>
+
+                        <p className="text-base text-[#251D13]/75 leading-relaxed font-sans pt-1">
+                            {product.description || "Objeto marroquinero de manufactura noble, pensado para acompañar el día a día y desarrollar una pátina singular con el uso sostenido."}
                         </p>
                     </div>
 
-             
-
-                    <div className="space-y-6">
-                        <div className="space-y-4 pt-6 border-t border-[#DDC8A6]/40">
-                            <div className="grid grid-cols-2 gap-4 text-xs font-sans">
-                                <div>
-                                    <span className="block text-[#856a43] uppercase tracking-wider font-bold mb-0.5">Material Base</span>
-                                    <span className="font-bold text-sm text-[#251D13]">{product.material || "Cuero"}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-[#856a43] uppercase tracking-wider font-bold mb-0.5">Dimensiones Originales</span>
-                                    <span className="font-bold text-sm text-[#251D13]">{product.dimensions || "100% Personalizable"}</span>
-                                </div>
+                    {/* Durability Philosophy Card */}
+                    <div className="p-5 rounded-2xl bg-[#F5EFE6]/70 border border-[#DDC8A6]/50 space-y-3">
+                        <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-[0.2em] text-[#856a43]">
+                            <Sparkles className="w-3.5 h-3.5 text-[#856a43]" />
+                            <span>El valor de lo que perdura</span>
+                        </div>
+                        <p className="text-xs text-[#251D13]/85 leading-relaxed font-serif italic">
+                            "Los buenos objetos no se reemplazan. Adquieren historia. Esta pieza fue concebida para resistir el paso del tiempo y enriquecerse con el roce y la rutina."
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-[#DDC8A6]/30 text-[11px] text-[#251D13]/80">
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#856a43] shrink-0" />
+                                <span>Envejece bien con el uso</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#856a43] shrink-0" />
+                                <span>Material que adquiere historia</span>
                             </div>
                         </div>
+                    </div>
 
-                        {/* CTA Conversion Block */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-[#DDC8A6]/40">
-                            <Button 
-                                onClick={handleOpenModal}
-                                size="lg" 
-                                className="flex-1 rounded-full bg-[#251D13] text-[#DDC8A6] hover:bg-[#251D13]/90 hover:text-white font-bold uppercase tracking-wider text-xs py-6 cursor-pointer transition-all shadow-md border-none"
-                            >
-                                Consultar por este desarrollo
-                            </Button>
-                            <Button 
-                                asChild
-                                variant="outline"
-                                size="lg" 
-                                className="rounded-full border-[#251D13] text-[#251D13] hover:bg-[#DDC8A6]/20 font-bold uppercase tracking-wider text-xs py-6 cursor-pointer flex items-center justify-center gap-2"
-                            >
-                                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                                    <MessageCircle className="w-4 h-4" />
-                                    Consultar por WhatsApp
-                                </a>
-                            </Button>
+                    {/* Material & Technical Specifications */}
+                    <div className="space-y-4 pt-4 border-t border-[#DDC8A6]/40">
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span className="block text-[#856a43] font-mono uppercase tracking-wider text-[10px] font-bold mb-0.5">
+                                    Material Base
+                                </span>
+                                <span className="font-serif font-bold text-sm text-[#251D13]">
+                                    {product.material || "Cuero Vacuno Flor"}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block text-[#856a43] font-mono uppercase tracking-wider text-[10px] font-bold mb-0.5">
+                                    Dimensiones Base
+                                </span>
+                                <span className="font-serif font-bold text-sm text-[#251D13]">
+                                    {product.dimensions || "Adaptables a medida"}
+                                </span>
+                            </div>
                         </div>
                     </div>
+
+                    {/* B2B Adaptability Notice */}
+                    <div className="p-4 rounded-xl border border-dashed border-[#856a43]/40 bg-[#FBF8F3] space-y-1 text-xs text-[#251D13]/80">
+                        <span className="font-bold text-[#856a43] uppercase tracking-wider text-[10px] block">
+                            Punto de Partida para Proyectos
+                        </span>
+                        <span>
+                            Personalizamos este modelo en cueros, colores corporativos, herrajes y grabado de logo (bajo relieve, láser o serigrafía) para marcas y empresas.
+                        </span>
+                    </div>
+
+                    {/* Conversion Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                        <Button 
+                            onClick={handleOpenModal}
+                            size="lg" 
+                            className="flex-1 rounded-full bg-[#251D13] text-[#DDC8A6] hover:bg-[#34291c] hover:text-white font-semibold uppercase tracking-wider text-xs py-6 cursor-pointer transition-all shadow-sm border-none"
+                        >
+                            Consultar por este desarrollo
+                        </Button>
+                        <Button 
+                            asChild
+                            variant="outline"
+                            size="lg" 
+                            className="rounded-full border-[#251D13]/40 text-[#251D13] hover:border-[#251D13] hover:bg-[#251D13]/5 font-semibold uppercase tracking-wider text-xs py-6 cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                                <MessageCircle className="w-4 h-4 text-[#856a43]" />
+                                Consultar por WhatsApp
+                            </a>
+                        </Button>
+                    </div>
+
                 </div>
             </div>
 
@@ -281,7 +337,6 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
             <AnimatePresence>
                 {isModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        {/* Overlay backdrop */}
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -290,29 +345,29 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                             className="absolute inset-0 bg-[#251D13]/40 backdrop-blur-md cursor-pointer"
                         />
 
-                        {/* Modal Container */}
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            initial={{ opacity: 0, scale: 0.96, y: 8 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="relative w-full max-w-xl bg-[#FBF8F3] border border-[#DDC8A6]/40 rounded-2xl shadow-2xl p-6 sm:p-8 overflow-y-auto max-h-[90vh] z-10"
+                            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                            className="relative w-full max-w-xl bg-[#FBF8F3] border border-[#DDC8A6]/50 rounded-2xl shadow-2xl p-6 sm:p-8 overflow-y-auto max-h-[90vh] z-10"
                         >
-                            {/* Close button */}
                             <button 
                                 onClick={handleCloseModal}
                                 className="absolute right-4 top-4 text-[#856a43] hover:text-[#251D13] p-1 transition-colors cursor-pointer"
-                                aria-label="Cerrar modal"
+                                aria-label="Cerrar ventana"
                             >
                                 <X className="h-5 w-5" />
                             </button>
 
                             <div className="mb-6 space-y-1">
-                                <span className="text-[9px] font-bold tracking-[0.25em] uppercase text-[#856a43]">Cotización B2B</span>
-                                <h2 className="text-xl font-bold font-serif text-[#251D13]">
-                                    Consultar Desarrollo: <span className="text-[#856a43]">{product.name}</span>
+                                <span className="text-[10px] font-mono font-bold tracking-[0.25em] uppercase text-[#856a43]">
+                                    Desarrollo B2B · Consulta
+                                </span>
+                                <h2 className="text-xl font-serif font-bold text-[#251D13]">
+                                    Proyecto Inspirado en: <span className="text-[#856a43]">{product.name}</span>
                                 </h2>
                                 <p className="text-xs text-[#251D13]/70 leading-relaxed font-sans">
-                                    Déjanos los requerimientos preliminares del proyecto y te cotizaremos un modelo adaptado a tus necesidades corporativas.
+                                    Contanos sobre tu empresa, requerimientos de cantidad o adaptaciones deseadas. Te responderemos con una propuesta personalizada.
                                 </p>
                             </div>
 
@@ -336,7 +391,7 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                                     placeholder="Ej. Juan Pérez"
                                                     value={modalName}
                                                     onChange={e => setModalName(e.target.value)}
-                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs focus:ring-1 focus:ring-[#856a43]"
+                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs bg-white/70"
                                                 />
                                             </div>
                                             <div className="space-y-1">
@@ -345,10 +400,10 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                                     id="modalCompany"
                                                     type="text"
                                                     required
-                                                    placeholder="Ej. Valois Group"
+                                                    placeholder="Ej. Estudio o Marca"
                                                     value={modalCompany}
                                                     onChange={e => setModalCompany(e.target.value)}
-                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs focus:ring-1 focus:ring-[#856a43]"
+                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs bg-white/70"
                                                 />
                                             </div>
                                         </div>
@@ -363,11 +418,11 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                                     placeholder="ejemplo@empresa.com"
                                                     value={modalEmail}
                                                     onChange={e => setModalEmail(e.target.value)}
-                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs focus:ring-1 focus:ring-[#856a43]"
+                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs bg-white/70"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <Label htmlFor="modalPhone" className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Teléfono de Contacto *</Label>
+                                                <Label htmlFor="modalPhone" className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Teléfono *</Label>
                                                 <Input 
                                                     id="modalPhone"
                                                     type="tel"
@@ -375,48 +430,48 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                                     placeholder="Ej. +54 11 1234 5678"
                                                     value={modalPhone}
                                                     onChange={e => setModalPhone(e.target.value)}
-                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs focus:ring-1 focus:ring-[#856a43]"
+                                                    className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs bg-white/70"
                                                 />
                                             </div>
                                         </div>
 
                                         <div className="space-y-1">
-                                            <Label htmlFor="modalQuantity" className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Cantidad Estimada de Unidades *</Label>
+                                            <Label htmlFor="modalQuantity" className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Cantidad Estimada *</Label>
                                             <Input 
                                                 id="modalQuantity"
                                                 type="number"
                                                 required
                                                 min="1"
-                                                placeholder="Ej. 200"
+                                                placeholder="Ej. 100"
                                                 value={modalQuantity}
                                                 onChange={e => setModalQuantity(e.target.value)}
-                                                className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs focus:ring-1 focus:ring-[#856a43]"
+                                                className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs bg-white/70"
                                             />
                                         </div>
 
                                         <div className="space-y-1">
-                                            <Label htmlFor="modalMessage" className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Especificaciones del Proyecto</Label>
+                                            <Label htmlFor="modalMessage" className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Especificaciones o Idea</Label>
                                             <Textarea 
                                                 id="modalMessage"
                                                 rows={3}
                                                 required
-                                                placeholder="Ej. Colores específicos, tamaño modificado, estampado de logo corporativo en bajo relieve..."
+                                                placeholder="Contanos sobre colores deseados, medidas o técnica de cuño de logo..."
                                                 value={modalMessage}
                                                 onChange={e => setModalMessage(e.target.value)}
-                                                className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs focus:ring-1 focus:ring-[#856a43] resize-none"
+                                                className="rounded-lg border-[#DDC8A6] focus:border-[#856a43] text-xs resize-none bg-white/70"
                                             />
                                         </div>
 
-                                        {/* Modal File Upload Drag & Drop */}
+                                        {/* File Upload Drag & Drop */}
                                         <div className="space-y-1">
-                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Manual de Marca o Logotipos (Opcional)</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-[#251D13]/80">Manual de Marca o Logo (Opcional)</Label>
                                             <div 
                                                 onDragOver={handleDragOver}
                                                 onDragLeave={handleDragLeave}
                                                 onDrop={handleDrop}
                                                 onClick={() => fileInputRef.current?.click()}
                                                 className={cn(
-                                                    "border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors duration-200 flex flex-col items-center justify-center space-y-1 bg-[#F5EFE6]/30",
+                                                    "border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors duration-200 flex flex-col items-center justify-center space-y-1 bg-[#F5EFE6]/40",
                                                     modalDragOver ? "border-[#251D13] bg-[#DDC8A6]/20" : "border-[#DDC8A6] hover:border-[#856a43]"
                                                 )}
                                             >
@@ -429,14 +484,13 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                                     accept=".pdf,.png,.jpg,.jpeg,.svg,.ai,.eps,.zip"
                                                 />
                                                 <UploadCloud className="h-5 w-5 text-[#856a43]" />
-                                                <p className="text-[11px] font-bold text-[#251D13]">Arrastra logos o haz clic para subir</p>
+                                                <p className="text-[11px] font-bold text-[#251D13]">Arrastrá tus archivos o hacé clic para subir</p>
                                             </div>
 
-                                            {/* File List */}
                                             {modalFiles.length > 0 && (
                                                 <div className="pt-2 space-y-1 max-h-24 overflow-y-auto pr-1">
                                                     {modalFiles.map((file, idx) => (
-                                                        <div key={idx} className="flex items-center justify-between p-1.5 bg-[#F5EFE6]/50 border border-[#DDC8A6]/30 rounded-lg text-[10px]">
+                                                        <div key={idx} className="flex items-center justify-between p-1.5 bg-[#F5EFE6] border border-[#DDC8A6]/30 rounded-lg text-[10px]">
                                                             <div className="flex items-center gap-1.5 truncate max-w-[85%] text-[#251D13]">
                                                                 <File className="h-3 w-3 shrink-0 text-[#856a43]" />
                                                                 <span className="truncate font-semibold">{file.name}</span>
@@ -461,7 +515,7 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                         <Button 
                                             type="submit"
                                             disabled={modalSubmitting}
-                                            className="w-full rounded-full bg-[#251D13] text-[#DDC8A6] hover:bg-[#251D13]/90 hover:text-white text-xs font-bold uppercase tracking-wider py-5 cursor-pointer flex items-center justify-center gap-2 border-none"
+                                            className="w-full rounded-full bg-[#251D13] text-[#DDC8A6] hover:bg-[#34291c] hover:text-white text-xs font-semibold uppercase tracking-wider py-5 cursor-pointer flex items-center justify-center gap-2 border-none"
                                         >
                                             {modalSubmitting ? (
                                                 <>
@@ -469,7 +523,7 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                                     Enviando Consulta...
                                                 </>
                                             ) : (
-                                                "Enviar Solicitud de Cotización"
+                                                "Enviar Solicitud de Desarrollo"
                                             )}
                                         </Button>
                                     </motion.form>
@@ -481,18 +535,18 @@ export function ProductDetail({ product, variants }: ProductDetailProps) {
                                         exit={{ opacity: 0 }}
                                         className="py-10 text-center flex flex-col items-center justify-center space-y-4"
                                     >
-                                        <div className="h-14 w-14 rounded-full bg-[#F5EFE6] text-[#856a43] border border-[#DDC8A6]/20 flex items-center justify-center">
+                                        <div className="h-14 w-14 rounded-full bg-[#F5EFE6] text-[#856a43] border border-[#DDC8A6]/40 flex items-center justify-center">
                                             <Check className="h-7 w-7" />
                                         </div>
                                         <div className="space-y-1">
-                                            <h3 className="font-bold font-serif text-lg text-[#251D13]">¡Solicitud Enviada!</h3>
+                                            <h3 className="font-bold font-serif text-lg text-[#251D13]">¡Solicitud Recibida!</h3>
                                             <p className="text-xs text-[#251D13]/70 max-w-sm leading-relaxed font-sans">
-                                                Tu consulta para cotizar un modelo similar a "{product.name}" ha sido recibida. Analizaremos los plazos y la cantidad requerida ({modalQuantity} unidades) y te responderemos por correo electrónico con una propuesta técnico-comercial.
+                                                Analizaremos tu consulta para el desarrollo basado en "{product.name}". Te contactaremos a la brevedad con alternativas y plazos de taller.
                                             </p>
                                         </div>
                                         <Button 
                                             onClick={handleCloseModal}
-                                            className="rounded-full px-6 py-4 cursor-pointer mt-4"
+                                            className="rounded-full px-6 py-4 cursor-pointer mt-4 bg-[#251D13] text-[#DDC8A6]"
                                         >
                                             Cerrar
                                         </Button>
